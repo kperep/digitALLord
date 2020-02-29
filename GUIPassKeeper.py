@@ -7,7 +7,6 @@ import _sqlite3 as s
 
 def reg(event):
     def reg_enter(event):
-        global s_reg
         reg_login = login_entry.get()
         reg_pass1 = pass1_entry.get()
         reg_pass2 = pass2_entry.get()
@@ -27,7 +26,8 @@ def reg(event):
                               VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')"""%(reg_login, reg_pass1, 'dump', 'dump', '0', 'a', 'b', 'c' ))
             users.commit()
             messagebox.showinfo("Регистрация", "Поздравляем, вы зарегистрировались!")
-            s_reg = True
+            window.deiconify()  # переключаемся на окно авторизации
+            reg_window.quit()  # закрываем окно регистрации
 
     window.withdraw()
     reg_window = Toplevel(window)  # создаём дочернее окно
@@ -55,12 +55,8 @@ def reg(event):
     login_entry.bind('<Return>', reg_enter)  # регистрация по нажатию клавиши Enter из поля логина
     pass1_entry.bind('<Return>', reg_enter)  # регистрация по нажатию клавиши Enter из поля пароля
     pass2_entry.bind('<Return>', reg_enter)  # регистрация по нажатию клавиши Enter из поля пароля 2
-# закрываем окно регистрации, переключаемся на окно авторизации
-    if s_reg:
-        window.deiconify()
-        reg_window.quit()
-    else:
-        reg_window.mainloop()
+# запускаем цикл дочернего окна
+    reg_window.mainloop()
 
 
 def access_denied():  # функция запрета доступа
@@ -141,10 +137,10 @@ registrationLabel.configure(font=f)
 #  ====== рабочая часть программы ======
 loginEntry.focus()  # устанавливаем фокус на поле ввода логина
 authSuccess = 0  # инициализируем счетчик попыток входа
-s_reg = False  # статус процесса регистрации
 label4.bind('<Button-1>', enter)  # авторизация по клику на "короле"
 loginEntry.bind('<Return>', enter)  # авторизация по нажатию клавиши Enter из поля логина
 passEntry.bind('<Return>', enter)  # авторизация по нажатию клавиши Enter из поля пароля
 registrationLabel.bind('<Button-1>', reg)  # регистрация по нажатию на соответствующую ссылку
 
+# запускаем цикл дочернего окна
 window.mainloop()
