@@ -35,7 +35,7 @@ def reg(event):
             window.deiconify()  # переключаемся на окно авторизации
             reg_window.destroy()  # закрываем окно регистрации
 
-    window.withdraw()
+    window.withdraw()              # скрываем родительское окно
     reg_window = Toplevel(window)  # создаём дочернее окно
     r_ws = reg_window.winfo_screenwidth()  # считываем текущую ширину экрана
     r_hs = reg_window.winfo_screenheight()  # считываем текущую высоту экрана
@@ -86,6 +86,23 @@ def reg(event):
     submit_reg_button.bind('<Button-1>', reg_enter)  # регистрация по нажатию на кнопку "Зарегистрироваться"
 # запускаем цикл дочернего окна
     reg_window.mainloop()
+
+
+# функция восстановления пароля
+def forget(event):
+    window.withdraw()  # скрываем родительское окно
+    forget_window = Toplevel(window)  # создаём дочернее окно
+    f_ws = forget_window.winfo_screenwidth()  # считываем текущую ширину экрана
+    f_hs = forget_window.winfo_screenheight()  # считываем текущую высоту экрана
+    forget_window.geometry('%dx%d+%d+%d' % (306, 120, (f_ws / 2) - 153, (f_hs / 2 - 60)))  # расположение по центру экрана
+    forget_window.resizable(0, 0)  # запрещаем изменять размер окна
+    forget_window.overrideredirect(1)  # отключаем рамку окна (нельзя переместить и закрыть)
+    forget_caption = Label(forget_window, text="Восстановление пароля", font=('Arial Black', 10))  # заголовок окна регистрации
+    forget_caption.grid(row=0, column=0, columnspan=2)
+    forget_login_label = Label(forget_window, text='Введите логин своего аккаунта')
+    forget_login_label.grid(row=1, column=0)
+    forget_login_entry = Entry(forget_window, width=20)  # поле для ввода логина с забытого аккаунта
+    forget_login_entry.grid(row=1, column=1)
 
 
 # функция запрета доступа
@@ -153,8 +170,7 @@ logo = ImageTk.PhotoImage(img)
 label4 = Label(window, image=logo, cursor='heart')
 label4.grid(row=1, column=2, rowspan=2)
 forgetLabel = Label(window, text='',
-                    cursor='hand2')  # Надпись "Забыли пароль?" неактивна и появляется только при неудачной попытке
-# входа
+                    cursor='hand2')  # Надпись "Забыли пароль?" неактивна и появляется только при неудачной попытке входа
 forgetLabel.grid(row=3, column=0, columnspan=2, sticky=E)
 f = font.Font(forgetLabel, forgetLabel.cget('font'))  # делаем текст в виде ссылки, с подчеркиванием
 f.configure(underline=True)
@@ -172,6 +188,7 @@ label4.bind('<Button-1>', enter)  # авторизация по клику на 
 loginEntry.bind('<Return>', enter)  # авторизация по нажатию клавиши Enter из поля логина
 passEntry.bind('<Return>', enter)  # авторизация по нажатию клавиши Enter из поля пароля
 registrationLabel.bind('<Button-1>', reg)  # регистрация по нажатию на соответствующую ссылку
+forgetLabel.bind('<Button-1>', forget)  # запуск восстановления пароля по нажатию на надпись "Забыли пароль?"
 
 # запускаем цикл дочернего окна
 window.mainloop()
