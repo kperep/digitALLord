@@ -5,11 +5,17 @@ from PIL import Image, ImageTk
 import _sqlite3 as s
 
 
+# функция регистрации
 def reg(event):
     def reg_enter(event):
-        reg_login = login_entry.get()
-        reg_pass1 = pass1_entry.get()
-        reg_pass2 = pass2_entry.get()
+        reg_login = login_entry.get()            # Считываем желаемый логин
+        reg_pass1 = pass1_entry.get()            # Считываем желаемый пароль
+        reg_pass2 = pass2_entry.get()            # Считываем повтор желаемого пароля
+        reg_s_q = s_q_entry.get()                    # Считываем секретный вопрос
+        reg_s_a = s_a_entry.get()                    # Считываем ответ на секретный вопрос
+        reg_birthday = birthday_entry.get()          # Считываем дату рождения
+        reg_email = email_entry.get()                # Считываем e-mail
+        reg_phone_number = phone_number_entry.get()  # Считываем номер телефона
         cur = users.cursor()  # курсор в базе данных users cur = cursor
         cur.execute('''SELECT login FROM users''')  # считываем в курсор всех пользователей и пароли
         log = cur.fetchone()  # считываем одного из пользователей в БД
@@ -23,17 +29,17 @@ def reg(event):
         else:
             cur = users.cursor()  # курсор в базе данных users cur = cursor
             cur.execute("""INSERT INTO users (login, password, s_q, s_a, best_score, email, birthday, phone_number)
-                              VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')"""%(reg_login, reg_pass1, 'dump', 'dump', '0', 'a', 'b', 'c' ))
+                              VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')"""%(reg_login, reg_pass1, reg_s_q, reg_s_a, '0', reg_email, reg_birthday, reg_phone_number))
             users.commit()
             messagebox.showinfo("Регистрация", "Поздравляем, вы зарегистрировались!")
             window.deiconify()  # переключаемся на окно авторизации
-            reg_window.quit()  # закрываем окно регистрации
+            reg_window.destroy()  # закрываем окно регистрации
 
     window.withdraw()
     reg_window = Toplevel(window)  # создаём дочернее окно
     r_ws = reg_window.winfo_screenwidth()  # считываем текущую ширину экрана
     r_hs = reg_window.winfo_screenheight()  # считываем текущую высоту экрана
-    reg_window.geometry('%dx%d+%d+%d' % (266, 90, (r_ws / 2) - 133, (r_hs / 2 - 45)))  # расположение по центру экрана
+    reg_window.geometry('%dx%d+%d+%d' % (292, 220, (r_ws / 2) - 144, (r_hs / 2 - 110)))  # расположение по центру экрана
     reg_window.resizable(0, 0)  # запрещаем изменять размер окна
     reg_window.overrideredirect(1)  # отключаем рамку окна (нельзя переместить и закрыть)
     reg_caption = Label(reg_window, text="Регистрация", font=('Arial Black', 10))  # заголовок окна регистрации
@@ -44,22 +50,46 @@ def reg(event):
     pass1_reg.grid(row=2, column=0, sticky=E)
     pass2_reg = Label(reg_window, text='Повторите пароль: ')  # заголовок поля для повторения пароля
     pass2_reg.grid(row=3, column=0, sticky=E)
+    s_q_reg = Label(reg_window, text='Секретный вопрос: ')  # заголовок поля для секретного вопроса
+    s_q_reg.grid(row=4, column=0, sticky=E)
+    s_a_reg = Label(reg_window, text='Ответ на секретный вопрос: ')  # заголовок поля для секретного ответа
+    s_a_reg.grid(row=5, column=0, sticky=E)
+    birthday_reg = Label(reg_window, text='Дата рождения: ')  # заголовок поля для даты рождения
+    birthday_reg.grid(row=6, column=0, sticky=E)
+    email_reg = Label(reg_window, text='E-mail: ')  # заголовок поля для e-mail
+    email_reg.grid(row=7, column=0, sticky=E)
+    phone_number_reg = Label(reg_window, text='Номер телефона: ')  # заголовок поля для номера телефона
+    phone_number_reg.grid(row=8, column=0, sticky=E)
     login_entry = Entry(reg_window, width=20)  # поле для ввода желаемого логина
     login_entry.grid(row=1, column=1)
     pass1_entry = Entry(reg_window, width=20)  # поле для ввода желаемого пароля
     pass1_entry.grid(row=2, column=1)
     pass2_entry = Entry(reg_window, width=20)  # поле для повтора желаемого пароля
     pass2_entry.grid(row=3, column=1)
+    s_q_entry = Entry(reg_window, width=20)  # поле для ввода секретного вопроса
+    s_q_entry.grid(row=4, column=1)
+    s_a_entry = Entry(reg_window, width=20)  # поле для ввода ответа на секретный вопрос
+    s_a_entry.grid(row=5, column=1)
+    birthday_entry = Entry(reg_window, width=20)  # поле для ввода даты рождения
+    birthday_entry.grid(row=6, column=1)
+    email_entry = Entry(reg_window, width=20)  # поле для ввода e-mail
+    email_entry.grid(row=7, column=1)
+    phone_number_entry = Entry(reg_window, width=20)  # поле для ввода даты рождения
+    phone_number_entry.grid(row=8, column=1)
+    submit_reg_button = Button(reg_window, text="Зарегистрироваться")
+    submit_reg_button.grid(row=9, column=0, columnspan=2)
 # создаём рабочую часть
     login_entry.focus()  # устанавливаем фокус на поле ввода логина
     login_entry.bind('<Return>', reg_enter)  # регистрация по нажатию клавиши Enter из поля логина
     pass1_entry.bind('<Return>', reg_enter)  # регистрация по нажатию клавиши Enter из поля пароля
     pass2_entry.bind('<Return>', reg_enter)  # регистрация по нажатию клавиши Enter из поля пароля 2
+    submit_reg_button.bind('<Button-1>', reg_enter)  # регистрация по нажатию на кнопку "Зарегистрироваться"
 # запускаем цикл дочернего окна
     reg_window.mainloop()
 
 
-def access_denied():  # функция запрета доступа
+# функция запрета доступа
+def access_denied():
     access_denied_message = 'Вы совершили слишком большое количество попыток входа (' + str(authSuccess) + ').\n\nВ ' \
                                                                                                            'доступе ' \
                                                                                                            'отказано! '
@@ -71,7 +101,8 @@ def access_denied():  # функция запрета доступа
     forgetLabel.configure(text='Забыли пароль?')  # отключается возможность входа и появляется надпись "Забыли пароль?"
 
 
-def enter(event):  # функция авторизации
+# функция авторизации
+def enter(event):
     global authSuccess  # глобальная переменная для подсчета попыток неудачного входа
     cur = users.cursor()  # курсор в базе данных users cur = cursor
     cur.execute('''SELECT login, password FROM users''')  # считываем в курсор всех пользователей и пароли
@@ -102,7 +133,7 @@ phone_number)''')  # s_q - контрольный вопрос, s_a - контр
 window = Tk()  # создаём новую форму
 ws = window.winfo_screenwidth()  # считываем текущую ширину экрана
 hs = window.winfo_screenheight()  # считываем текущую высоту экрана
-window.geometry('%dx%d+%d+%d' % (270, 160, (ws / 2) - 135, (hs / 2 - 80)))  # расположение по центру экрана
+window.geometry('%dx%d+%d+%d' % (280, 150, (ws / 2) - 140, (hs / 2 - 75)))  # расположение по центру экрана
 window.resizable(0, 0)  # запрещаем изменять размер окна
 window.overrideredirect(1)  # отключаем рамку окна (нельзя переместить и закрыть)
 
