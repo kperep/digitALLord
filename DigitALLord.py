@@ -21,7 +21,7 @@ def reg(event):
         log = cur.fetchone()  # считываем одного из пользователей в БД
         while log is not None and log[0] != reg_login:  # пока не найдётся совпадение или пока не закончатся пользователи
             log = cur.fetchone()  # считываем ещё одного пользователя из БД
-        if not(log is None):  # если такой логин не найден
+        if not(log is None):  # если такой логин найден
             s_temp = 'Такое имя пользователя уже существует. \n\nПопробуйте ' + reg_login + str(random.randrange(100))
             messagebox.showinfo('Ошибка', s_temp)
         elif reg_pass1 != reg_pass2:
@@ -34,7 +34,6 @@ def reg(event):
             messagebox.showinfo("Регистрация", "Поздравляем, вы зарегистрировались!")
             window.deiconify()  # переключаемся на окно авторизации
             reg_window.destroy()  # закрываем окно регистрации
-
     window.withdraw()              # скрываем родительское окно
     reg_window = Toplevel(window)  # создаём дочернее окно
     r_ws = reg_window.winfo_screenwidth()  # считываем текущую ширину экрана
@@ -90,19 +89,69 @@ def reg(event):
 
 # функция восстановления пароля
 def forget(event):
+    def check_login(event):
+        def s_a_check(event):
+            login_global = forget_login_entry.get()
+            curs = users.cursor()  # курсор в базе данных users cur = cursor
+            curs.execute('''SELECT login, password, s_a FROM users''')  # считываем в курсор всех пользователей, пароли и секретные ответы
+            lg = curs.fetchone()  # считываем одного из пользователей в БД
+            while lg[0] != login_global:  # пока не найдётся совпадение или пока не закончатся пользователи
+                lg = curs.fetchone()  # считываем ещё одного пользователя из БД
+            user_s_a = s_a_entry.get()  # считываем пользовательский вариант ответа
+            if user_s_a != lg[2]:  # если он не совпадает с ответом из базы данных, сообщаем об этом
+                messagebox.showwarning('Ошибка', 'Ваш ответ не совпал с ответом в базе данных!')
+            else:  # если ответы совпадают
+                temp_string = 'Ваш пароль: ' + lg[1]
+                messagebox.showinfo('Поздравляем!', temp_string)  # сообщаем пользователю его пароль
+                loginEntry.configure(state=NORMAL)                # включаем
+                passEntry.configure(state=NORMAL)                 # все поля
+                label4.configure(state=NORMAL)                    # на форме
+                registrationLabel.configure(state=NORMAL)         # авторизации
+                window.deiconify()  # переключаемся на окно авторизации
+                forget_window.destroy()  # закрываем окно регистрации
+        login2check = forget_login_entry.get()  # считываем логин для проверки
+        cur = users.cursor()  # курсор в базе данных users cur = cursor
+        cur.execute('''SELECT login, password, s_q, s_a FROM users''')  # считываем в курсор всех пользователей, пароли, секретные вопросы и ответы
+        log = cur.fetchone()  # считываем одного из пользователей в БД
+        while log is not None and log[0] != login2check:  # пока не найдётся совпадение или пока не закончатся пользователи
+            log = cur.fetchone()  # считываем ещё одного пользователя из БД
+        if not (log is None):  # если такой логин найден
+            check_log_button.destroy()
+            result_label.configure(text='Пользователь найден', fg='#000')  # выводим сообщение об этом нормальным шрифтом
+            instruction_label = Label(forget_window, text='Пожалуйста, ответьте на секретный вопрос:')
+            instruction_label.grid(row=3, column=0, columnspan=3)  # надпись с просьбой ответить на секретный вопрос
+            s_q_label = Label(forget_window, text=log[2], font=('Arial Black', 8), fg='#55F')  # выделяем секретный вопрос шрифтом и цветом
+            s_q_label.grid(row=4, column=0, columnspan=3)
+            s_a_label = Label(forget_window, text='Ваш ответ:')  # надпись с предложением пользователю ввести свой вариант ответа
+            s_a_label.grid(row=5, column=0)
+            s_a_entry = Entry(forget_window, width=35)  # поле для ввода ответа на секретный вопрос
+            s_a_entry.grid(row=5, column=1, sticky=W, columnspan=2)
+            s_a_button = Button(forget_window, text='Отвечаю!')  # кнопка для отправки варианта ответа на вопрос
+            s_a_button.grid(row=6, column=0, columnspan=3)
+            s_a_entry.bind('<Return>', s_a_check)      # проверка ответа на секретный вопрос по нажатию Enter
+            s_a_button.bind('<Button-1>', s_a_check)   # проверка ответа на секретный вопрос по клику на кнопку "Отвечаю!"
+        else:
+            result_label.configure(text='Пользователь не найден', fg='#F00')  # если пользователь не найден - красное сообщение
     window.withdraw()  # скрываем родительское окно
     forget_window = Toplevel(window)  # создаём дочернее окно
     f_ws = forget_window.winfo_screenwidth()  # считываем текущую ширину экрана
     f_hs = forget_window.winfo_screenheight()  # считываем текущую высоту экрана
-    forget_window.geometry('%dx%d+%d+%d' % (306, 120, (f_ws / 2) - 153, (f_hs / 2 - 60)))  # расположение по центру экрана
+    forget_window.geometry('%dx%d+%d+%d' % (306, 160, (f_ws / 2) - 153, (f_hs / 2 - 80)))  # расположение по центру экрана
     forget_window.resizable(0, 0)  # запрещаем изменять размер окна
     forget_window.overrideredirect(1)  # отключаем рамку окна (нельзя переместить и закрыть)
-    forget_caption = Label(forget_window, text="Восстановление пароля", font=('Arial Black', 10))  # заголовок окна регистрации
-    forget_caption.grid(row=0, column=0, columnspan=2)
-    forget_login_label = Label(forget_window, text='Введите логин своего аккаунта')
-    forget_login_label.grid(row=1, column=0)
+    forget_caption = Label(forget_window, text="Восстановление пароля", font=('Arial Black', 10))  # заголовок окна восстановления пароля
+    forget_caption.grid(row=0, column=0, columnspan=3)
+    forget_login_label = Label(forget_window, text='Введите логин своего аккаунта')  # надпись с просьбой ввести искомый логин
+    forget_login_label.grid(row=1, column=0, columnspan=2)
     forget_login_entry = Entry(forget_window, width=20)  # поле для ввода логина с забытого аккаунта
-    forget_login_entry.grid(row=1, column=1)
+    forget_login_entry.grid(row=1, column=2)
+    result_label = Label(forget_window, text="")  # строка с результатами проверки (изначально скрыта)
+    result_label.grid(row=2, column=0, columnspan=3)
+    check_log_button = Button(forget_window, text="Проверить")  # кнопка для проверки наличия логина в базе
+    check_log_button.grid(row=3, column=0, columnspan=3)
+    # запускаем функцию по проверке наличия введённого пользователем логина в базе данных
+    check_log_button.bind('<Button-1>', check_login)  # по клику на кнопку
+    forget_login_entry.bind('<Return>', check_login)  # по нажатию Enter
 
 
 # функция запрета доступа
