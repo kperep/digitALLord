@@ -220,6 +220,7 @@ def intro(usr_login):
     total_ranks_button.grid(row=2, column=2, columnspan=2, padx=20,pady=5, sticky=N+W+S+E)
 
 
+# функция вывода 10-ти лучших игроков (или всех игроков, если игроков меньше 10)
 def top_scores(my_login):
     top_window = Toplevel(window)  # создаём окно выбора сложности
     t_ws = top_window.winfo_screenwidth()  # считываем текущую ширину экрана
