@@ -191,6 +191,16 @@ def enter(event):
 
 # функция, отвечающая за экран приветствия пользователя
 def intro(usr_login):
+    def easy_description(event):
+        description_label.configure(text='Требуется угадать число от 1 до 10.\nПодсказок нет. Максимум баллов: 100.\nЗа каждую неверную попытку снимается 10 баллов.')
+    def normal_description(event):
+        description_label.configure(text='Требуется угадать число от 1 до 100.\nЕсть подсказки "больше"- "меньше". Максимум баллов: 500.\nЗа каждую неверную попытку снимается 50 баллов.')
+    def hard_description(event):
+        description_label.configure(text='Требуется угадать число от 1 до 1000.\nЕсть подсказки "больше"- "меньше". Максимум баллов: 1000.\nЗа каждую неверную попытку снимается 50 баллов.')
+    def nightmare_description(event):
+        description_label.configure(text='Требуется угадать число от 1 до 1000.\nПодсказок нет. Максимум баллов: 1000.\nЗа каждую неверную попытку снимается 10 баллов.')
+    def description_off(event):
+        description_label.configure(text='Наведите указатель мыши на уровень сложности,\nчтобы прочитать его описание')
     def my_stat(stat_login):
         cur = users.cursor()  # курсор в базе данных users cur = cursor
         cur.execute('''SELECT login, best_score FROM users''')  # считываем в курсор лучший результат данного пользователя
@@ -204,7 +214,7 @@ def intro(usr_login):
     diff_window = Toplevel(window)  # создаём окно выбора сложности
     d_ws = diff_window.winfo_screenwidth()  # считываем текущую ширину экрана
     d_hs = diff_window.winfo_screenheight()  # считываем текущую высоту экрана
-    diff_window.geometry('%dx%d+%d+%d' % (330, 160, (d_ws / 2) - 165, (d_hs / 2 - 80)))  # расположение по центру экрана
+    diff_window.geometry('%dx%d+%d+%d' % (356, 230, (d_ws / 2) - 175, (d_hs / 2 - 115)))  # расположение по центру экрана
     diff_window.resizable(0, 0)  # запрещаем изменять размер окна
     diff_window.overrideredirect(1)  # отключаем рамку окна (нельзя переместить и закрыть)
     diff_caption = Label(diff_window, text="Главное меню", font=('Arial Black', 10))  # заголовок главного окна
@@ -218,6 +228,33 @@ def intro(usr_login):
     # кнопка для просмотра таблицы лидеров
     total_ranks_button = Button(diff_window, text="Таблица рекордов", padx=10, pady=5, command=lambda: top_scores(usr_login))
     total_ranks_button.grid(row=2, column=2, columnspan=2, padx=20,pady=5, sticky=N+W+S+E)
+    # надпись, которая предлагает выбрать уровень сложности
+    choose_diff_label = Label(diff_window, text="Выбери уровень сложности:")
+    choose_diff_label.grid(row=3, column=0, columnspan=4)
+    # кнопка легкого уровня сложности
+    easy_button = Button(diff_window, text="Лёгкий", padx=5, pady=5)
+    easy_button.grid(row=4, column=0, padx=5, pady=5, sticky=N+W+S+E)
+    # кнопка нормального уровня сложности
+    normal_button = Button(diff_window, text="Нормальный", padx=5, pady=5)
+    normal_button.grid(row=4, column=1, padx=5, pady=5, sticky=N+W+S+E)
+    # кнопка тяжелого уровня сложности
+    hard_button = Button(diff_window, text="Тяжёлый", padx=5, pady=5)
+    hard_button.grid(row=4, column=2, padx=5, pady=5, sticky=N+W+S+E)
+    # кнопка кошмарного уровня сложности
+    nightmare_button = Button(diff_window, text="Кошмарный", padx=5, pady=5)
+    nightmare_button.grid(row=4, column=3, padx=5, pady=5, sticky=N + W + S + E)
+    # пояснение уровня сложности
+    description_label = Label(diff_window, text="Наведите указатель мыши на уровень сложности,\nчтобы прочитать его описание")
+    description_label.grid(row=5, column=0, columnspan=4)
+    # описание событий с описаниями уровня сложности
+    easy_button.bind('<Enter>', easy_description)
+    easy_button.bind('<Leave>', description_off)
+    normal_button.bind('<Enter>', normal_description)
+    normal_button.bind('<Leave>', description_off)
+    hard_button.bind('<Enter>', hard_description)
+    hard_button.bind('<Leave>', description_off)
+    nightmare_button.bind('<Enter>', nightmare_description)
+    nightmare_button.bind('<Leave>', description_off)
 
 
 # функция вывода 10-ти лучших игроков (или всех игроков, если игроков меньше 10)
@@ -225,7 +262,7 @@ def top_scores(my_login):
     top_window = Toplevel(window)  # создаём окно выбора сложности
     t_ws = top_window.winfo_screenwidth()  # считываем текущую ширину экрана
     t_hs = top_window.winfo_screenheight()  # считываем текущую высоту экрана
-    top_window.geometry('%dx%d+%d+%d' % (300, 350, (t_ws / 2) + 170, (t_hs / 2 - 190)))  # расположение по центру экрана
+    top_window.geometry('%dx%d+%d+%d' % (300, 350, (t_ws / 2) + 180, (t_hs / 2 - 190)))  # расположение по центру экрана
     top_window.resizable(0, 0)  # запрещаем изменять размер окна
     top_window.title("Таблица рекордов")
     table_header_1 = Label(top_window, text="Игрок", font=('Arial Black', 10))  # заголовок таблицы "Игрок"
