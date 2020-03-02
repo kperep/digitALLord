@@ -181,12 +181,77 @@ def enter(event):
         messagebox.showwarning('Внимание!', 'Пользователь не найден!')  # выводим сообщение что логин не найден
     else:  # если такой логин найден, проверяется пароль
         if log[1] == password:
-            print('Пароль верный! Добро пожаловать!')
+            intro(log[0])
         else:
             messagebox.showwarning('Внимание!', 'Пароль неверный!')
             authSuccess += 1
             if authSuccess == 3:  # после трёх неудачных попыток подобрать пароль возможность входа блокируется
                 access_denied()
+
+
+# функция, отвечающая за экран приветствия пользователя
+def intro(usr_login):
+    def my_stat(stat_login):
+        cur = users.cursor()  # курсор в базе данных users cur = cursor
+        cur.execute('''SELECT login, best_score FROM users''')  # считываем в курсор лучший результат данного пользователя
+        log = cur.fetchone()  # считываем эту запись в кортеж
+        while log[0] != stat_login:
+            log = cur.fetchone()
+        temp_str = 'Ваш лучший счёт: ' + log[1] + '\n\nВскоре в этом разделе появится больше информации!'
+        temp_str1 = 'Статистика игрока ' + log[0]
+        messagebox.showinfo(temp_str1, temp_str)
+    window.withdraw()  # скрываем окно авторизации
+    diff_window = Toplevel(window)  # создаём окно выбора сложности
+    d_ws = diff_window.winfo_screenwidth()  # считываем текущую ширину экрана
+    d_hs = diff_window.winfo_screenheight()  # считываем текущую высоту экрана
+    diff_window.geometry('%dx%d+%d+%d' % (330, 160, (d_ws / 2) - 165, (d_hs / 2 - 80)))  # расположение по центру экрана
+    diff_window.resizable(0, 0)  # запрещаем изменять размер окна
+    diff_window.overrideredirect(1)  # отключаем рамку окна (нельзя переместить и закрыть)
+    diff_caption = Label(diff_window, text="Главное меню", font=('Arial Black', 10))  # заголовок главного окна
+    diff_caption.grid(row=0, column=0, columnspan=4)
+    # надпись, приветствующая игрока
+    welcome_label = Label(diff_window, text="Привет, "+usr_login+"! Давай поиграем?")
+    welcome_label.grid(row=1, column=0, columnspan=4, pady=10)
+    # кнопка для просмотра личной статистики
+    my_stat_button = Button(diff_window, text="Моя статистика", padx=10, pady=5, command=lambda: my_stat(usr_login))
+    my_stat_button.grid(row=2, column=0, columnspan=2, padx=20, pady=5, sticky=N+W+S+E)
+    # кнопка для просмотра таблицы лидеров
+    total_ranks_button = Button(diff_window, text="Таблица рекордов", padx=10, pady=5, command=lambda: top_scores(usr_login))
+    total_ranks_button.grid(row=2, column=2, columnspan=2, padx=20,pady=5, sticky=N+W+S+E)
+
+
+def top_scores(my_login):
+    top_window = Toplevel(window)  # создаём окно выбора сложности
+    t_ws = top_window.winfo_screenwidth()  # считываем текущую ширину экрана
+    t_hs = top_window.winfo_screenheight()  # считываем текущую высоту экрана
+    top_window.geometry('%dx%d+%d+%d' % (300, 350, (t_ws / 2) + 170, (t_hs / 2 - 190)))  # расположение по центру экрана
+    top_window.resizable(0, 0)  # запрещаем изменять размер окна
+    top_window.title("Таблица рекордов")
+    table_header_1 = Label(top_window, text="Игрок", font=('Arial Black', 10))  # заголовок таблицы "Игрок"
+    table_header_1.grid(row=0, column=0, padx=40, pady=5, sticky=N+W+S+E)
+    table_header_1 = Label(top_window, text="Лучший результат", font=('Arial Black', 10))  # заголовок таблицы "Лучший результат"
+    table_header_1.grid(row=0, column=1, padx=5, pady=5, sticky=N+W+S+E)
+    # получение данных об игроках и их рекордах
+    cur = users.cursor()  # курсор в базе данных users cur = cursor
+    cur.execute('''SELECT login, best_score FROM users''')  # считываем в курсор лучший результат данного пользователя
+    log = cur.fetchone()  # считываем эту запись в кортеж
+    scores = []
+    while log is not None:
+        scores.append(log)
+        log = cur.fetchone()
+    scores.sort(reverse=True, key=lambda x: x[1])  # сортировка игроков по убыванию лучшего результата
+    # вывод таблицы лидеров на экран
+    for i in range(min(10, len(scores))):
+        if my_login == scores[i][0]:  # выделяем результаты пользователя
+            player_name = Label(top_window, text=scores[i][0], fg="#44F")
+            player_name.grid(row=1 + i, column=0, padx=5, pady=5, sticky=N + W + S + E)
+            player_score = Label(top_window, text=scores[i][1], fg="#44F")
+            player_score.grid(row=i + 1, column=1, padx=5, pady=5, sticky=N + W + S + E)
+        else:
+            player_name = Label(top_window, text=scores[i][0])
+            player_name.grid(row=1+i, column=0, padx=5, pady=5, sticky=N+W+S+E)
+            player_score = Label(top_window, text=scores[i][1])
+            player_score.grid(row=i+1, column=1, padx=5, pady=5, sticky=N+W+S+E)
 
 
 # ====== инициализация базы данных ======
