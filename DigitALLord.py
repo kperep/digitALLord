@@ -8,20 +8,21 @@ import _sqlite3 as s
 # функция регистрации
 def reg(event):
     def reg_enter(event):
-        reg_login = login_entry.get()            # Считываем желаемый логин
-        reg_pass1 = pass1_entry.get()            # Считываем желаемый пароль
-        reg_pass2 = pass2_entry.get()            # Считываем повтор желаемого пароля
-        reg_s_q = s_q_entry.get()                    # Считываем секретный вопрос
-        reg_s_a = s_a_entry.get()                    # Считываем ответ на секретный вопрос
-        reg_birthday = birthday_entry.get()          # Считываем дату рождения
-        reg_email = email_entry.get()                # Считываем e-mail
+        reg_login = login_entry.get()  # Считываем желаемый логин
+        reg_pass1 = pass1_entry.get()  # Считываем желаемый пароль
+        reg_pass2 = pass2_entry.get()  # Считываем повтор желаемого пароля
+        reg_s_q = s_q_entry.get()  # Считываем секретный вопрос
+        reg_s_a = s_a_entry.get()  # Считываем ответ на секретный вопрос
+        reg_birthday = birthday_entry.get()  # Считываем дату рождения
+        reg_email = email_entry.get()  # Считываем e-mail
         reg_phone_number = phone_number_entry.get()  # Считываем номер телефона
         cur = users.cursor()  # курсор в базе данных users cur = cursor
         cur.execute('''SELECT login FROM users''')  # считываем в курсор всех пользователей и пароли
         log = cur.fetchone()  # считываем одного из пользователей в БД
-        while log is not None and log[0] != reg_login:  # пока не найдётся совпадение или пока не закончатся пользователи
+        while log is not None and log[
+            0] != reg_login:  # пока не найдётся совпадение или пока не закончатся пользователи
             log = cur.fetchone()  # считываем ещё одного пользователя из БД
-        if not(log is None):  # если такой логин найден
+        if not (log is None):  # если такой логин найден
             s_temp = 'Такое имя пользователя уже существует. \n\nПопробуйте ' + reg_login + str(random.randrange(100))
             messagebox.showinfo('Ошибка', s_temp)
         elif reg_pass1 != reg_pass2:
@@ -29,12 +30,14 @@ def reg(event):
         else:
             cur = users.cursor()  # курсор в базе данных users cur = cursor
             cur.execute("""INSERT INTO users (login, password, s_q, s_a, best_score, email, birthday, phone_number)
-                              VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')"""%(reg_login, reg_pass1, reg_s_q, reg_s_a, '0', reg_email, reg_birthday, reg_phone_number))
+                              VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')""" % (
+                reg_login, reg_pass1, reg_s_q, reg_s_a, '0', reg_email, reg_birthday, reg_phone_number))
             users.commit()
             messagebox.showinfo("Регистрация", "Поздравляем, вы зарегистрировались!")
             window.deiconify()  # переключаемся на окно авторизации
             reg_window.destroy()  # закрываем окно регистрации
-    window.withdraw()              # скрываем родительское окно
+
+    window.withdraw()  # скрываем родительское окно
     reg_window = Toplevel(window)  # создаём дочернее окно
     r_ws = reg_window.winfo_screenwidth()  # считываем текущую ширину экрана
     r_hs = reg_window.winfo_screenheight()  # считываем текущую высоту экрана
@@ -77,13 +80,13 @@ def reg(event):
     phone_number_entry.grid(row=8, column=1)
     submit_reg_button = Button(reg_window, text="Зарегистрироваться")
     submit_reg_button.grid(row=9, column=0, columnspan=2)
-# создаём рабочую часть
+    # создаём рабочую часть
     login_entry.focus()  # устанавливаем фокус на поле ввода логина
     login_entry.bind('<Return>', reg_enter)  # регистрация по нажатию клавиши Enter из поля логина
     pass1_entry.bind('<Return>', reg_enter)  # регистрация по нажатию клавиши Enter из поля пароля
     pass2_entry.bind('<Return>', reg_enter)  # регистрация по нажатию клавиши Enter из поля пароля 2
     submit_reg_button.bind('<Button-1>', reg_enter)  # регистрация по нажатию на кнопку "Зарегистрироваться"
-# запускаем цикл дочернего окна
+    # запускаем цикл дочернего окна
     reg_window.mainloop()
 
 
@@ -93,7 +96,9 @@ def forget(event):
         def s_a_check(event):
             login_global = forget_login_entry.get()
             curs = users.cursor()  # курсор в базе данных users cur = cursor
-            curs.execute('''SELECT login, password, s_a FROM users''')  # считываем в курсор всех пользователей, пароли и секретные ответы
+            curs.execute(
+                '''SELECT login, password, s_a FROM users''')  # считываем в курсор всех пользователей, пароли и
+            # секретные ответы
             lg = curs.fetchone()  # считываем одного из пользователей в БД
             while lg[0] != login_global:  # пока не найдётся совпадение или пока не закончатся пользователи
                 lg = curs.fetchone()  # считываем ещё одного пользователя из БД
@@ -103,45 +108,58 @@ def forget(event):
             else:  # если ответы совпадают
                 temp_string = 'Ваш пароль: ' + lg[1]
                 messagebox.showinfo('Поздравляем!', temp_string)  # сообщаем пользователю его пароль
-                loginEntry.configure(state=NORMAL)                # включаем
-                passEntry.configure(state=NORMAL)                 # все поля
-                label4.configure(state=NORMAL)                    # на форме
-                registrationLabel.configure(state=NORMAL)         # авторизации
+                loginEntry.configure(state=NORMAL)  # включаем
+                passEntry.configure(state=NORMAL)  # все поля
+                label4.configure(state=NORMAL)  # на форме
+                registrationLabel.configure(state=NORMAL)  # авторизации
                 window.deiconify()  # переключаемся на окно авторизации
                 forget_window.destroy()  # закрываем окно регистрации
+
         login2check = forget_login_entry.get()  # считываем логин для проверки
         cur = users.cursor()  # курсор в базе данных users cur = cursor
-        cur.execute('''SELECT login, password, s_q, s_a FROM users''')  # считываем в курсор всех пользователей, пароли, секретные вопросы и ответы
+        cur.execute(
+            '''SELECT login, password, s_q, s_a FROM users''')  # считываем в курсор всех пользователей, пароли,
+        # секретные вопросы и ответы
         log = cur.fetchone()  # считываем одного из пользователей в БД
-        while log is not None and log[0] != login2check:  # пока не найдётся совпадение или пока не закончатся пользователи
+        while log is not None and log[
+            0] != login2check:  # пока не найдётся совпадение или пока не закончатся пользователи
             log = cur.fetchone()  # считываем ещё одного пользователя из БД
         if not (log is None):  # если такой логин найден
             check_log_button.destroy()
-            result_label.configure(text='Пользователь найден', fg='#000')  # выводим сообщение об этом нормальным шрифтом
+            result_label.configure(text='Пользователь найден',
+                                   fg='#000')  # выводим сообщение об этом нормальным шрифтом
             instruction_label = Label(forget_window, text='Пожалуйста, ответьте на секретный вопрос:')
             instruction_label.grid(row=3, column=0, columnspan=3)  # надпись с просьбой ответить на секретный вопрос
-            s_q_label = Label(forget_window, text=log[2], font=('Arial Black', 8), fg='#55F')  # выделяем секретный вопрос шрифтом и цветом
+            s_q_label = Label(forget_window, text=log[2], font=('Arial Black', 8),
+                              fg='#55F')  # выделяем секретный вопрос шрифтом и цветом
             s_q_label.grid(row=4, column=0, columnspan=3)
-            s_a_label = Label(forget_window, text='Ваш ответ:')  # надпись с предложением пользователю ввести свой вариант ответа
+            s_a_label = Label(forget_window,
+                              text='Ваш ответ:')  # надпись с предложением пользователю ввести свой вариант ответа
             s_a_label.grid(row=5, column=0)
             s_a_entry = Entry(forget_window, width=35)  # поле для ввода ответа на секретный вопрос
             s_a_entry.grid(row=5, column=1, sticky=W, columnspan=2)
             s_a_button = Button(forget_window, text='Отвечаю!')  # кнопка для отправки варианта ответа на вопрос
             s_a_button.grid(row=6, column=0, columnspan=3)
-            s_a_entry.bind('<Return>', s_a_check)      # проверка ответа на секретный вопрос по нажатию Enter
-            s_a_button.bind('<Button-1>', s_a_check)   # проверка ответа на секретный вопрос по клику на кнопку "Отвечаю!"
+            s_a_entry.bind('<Return>', s_a_check)  # проверка ответа на секретный вопрос по нажатию Enter
+            s_a_button.bind('<Button-1>',
+                            s_a_check)  # проверка ответа на секретный вопрос по клику на кнопку "Отвечаю!"
         else:
-            result_label.configure(text='Пользователь не найден', fg='#F00')  # если пользователь не найден - красное сообщение
+            result_label.configure(text='Пользователь не найден',
+                                   fg='#F00')  # если пользователь не найден - красное сообщение
+
     window.withdraw()  # скрываем родительское окно
     forget_window = Toplevel(window)  # создаём дочернее окно
     f_ws = forget_window.winfo_screenwidth()  # считываем текущую ширину экрана
     f_hs = forget_window.winfo_screenheight()  # считываем текущую высоту экрана
-    forget_window.geometry('%dx%d+%d+%d' % (306, 160, (f_ws / 2) - 153, (f_hs / 2 - 80)))  # расположение по центру экрана
+    forget_window.geometry(
+        '%dx%d+%d+%d' % (306, 160, (f_ws / 2) - 153, (f_hs / 2 - 80)))  # расположение по центру экрана
     forget_window.resizable(0, 0)  # запрещаем изменять размер окна
     forget_window.overrideredirect(1)  # отключаем рамку окна (нельзя переместить и закрыть)
-    forget_caption = Label(forget_window, text="Восстановление пароля", font=('Arial Black', 10))  # заголовок окна восстановления пароля
+    forget_caption = Label(forget_window, text="Восстановление пароля",
+                           font=('Arial Black', 10))  # заголовок окна восстановления пароля
     forget_caption.grid(row=0, column=0, columnspan=3)
-    forget_login_label = Label(forget_window, text='Введите логин своего аккаунта')  # надпись с просьбой ввести искомый логин
+    forget_login_label = Label(forget_window,
+                               text='Введите логин своего аккаунта')  # надпись с просьбой ввести искомый логин
     forget_login_label.grid(row=1, column=0, columnspan=2)
     forget_login_entry = Entry(forget_window, width=20)  # поле для ввода логина с забытого аккаунта
     forget_login_entry.grid(row=1, column=2)
@@ -192,59 +210,104 @@ def enter(event):
 # функция, отвечающая за экран приветствия пользователя (статистика, начало новой игры)
 def intro(usr_login):
     def easy_description(event):
-        description_label.configure(text='Требуется угадать число от 1 до 10.\nПодсказок нет. Максимум баллов: 100.\nЗа каждую неверную попытку снимается 10 баллов.')
+        description_label.configure(
+            text='Требуется угадать число от 1 до 10.\nПодсказок нет. Максимум баллов: 100.\nЗа каждую неверную '
+                 'попытку снимается 10 баллов.')
+
+    def easy_mode(u_login, secret_digit):
+        def check_digit(s_d, u_l):
+            global soten
+            digit = int(a_entry.get())
+            if digit == s_d:
+                messagebox.showinfo('Поздравляю!', 'Ты победил!')
+            else:
+                soten -= 10
+                q_caption.configure(text='Я загадал число от 1 до 10.\nНе угадал! Осталось '+str(soten)+' баллов!')
+        diff_window.withdraw()
+        game_window = Toplevel(window)  # создаём окно выбора сложности
+        g_ws = game_window.winfo_screenwidth()  # считываем текущую ширину экрана
+        g_hs = game_window.winfo_screenheight()  # считываем текущую высоту экрана
+        game_window.geometry(
+            '%dx%d+%d+%d' % (240, 140, (g_ws / 2) - 120, (g_hs / 2 - 70)))  # расположение по центру экрана
+        game_window.resizable(0, 0)  # запрещаем изменять размер окна
+        game_window.overrideredirect(1)  # отключаем рамку окна (нельзя переместить и закрыть)
+        game_caption = Label(game_window, text="Числорд (easy)", font=('Arial Black', 10))  # заголовок главного окна
+        game_caption.grid(row=0, column=0, columnspan=3)
+        q_caption = Label(game_window, text="Я загадал число от 1 до 10.\nПопробуй угадай!")  # заголовок главного окна
+        q_caption.grid(row=1, column=0, columnspan=3, pady=5)
+        a_entry = Entry(game_window, width=39, bd=3)
+        a_entry.grid(row=2, column=0, columnspan=3)
+        answer_button = Button(game_window, text="Мне повезёт!", padx=5, pady=5, command=lambda: check_digit(secret_digit, u_login))
+        answer_button.grid(row=3, column=0, columnspan=3, pady=5)
+
     def normal_description(event):
-        description_label.configure(text='Требуется угадать число от 1 до 100.\nЕсть подсказки "больше"- "меньше". Максимум баллов: 500.\nЗа каждую неверную попытку снимается 50 баллов.')
+        description_label.configure(
+            text='Требуется угадать число от 1 до 100.\nЕсть подсказки "больше"- "меньше". Максимум баллов: 500.\nЗа '
+                 'каждую неверную попытку снимается 50 баллов.')
+
     def hard_description(event):
-        description_label.configure(text='Требуется угадать число от 1 до 1000.\nЕсть подсказки "больше"- "меньше". Максимум баллов: 1000.\nЗа каждую неверную попытку снимается 50 баллов.')
+        description_label.configure(
+            text='Требуется угадать число от 1 до 1000.\nЕсть подсказки "больше"- "меньше". Максимум баллов: '
+                 '1000.\nЗа каждую неверную попытку снимается 50 баллов.')
+
     def nightmare_description(event):
-        description_label.configure(text='Требуется угадать число от 1 до 1000.\nПодсказок нет. Максимум баллов: 1000.\nЗа каждую неверную попытку снимается 10 баллов.')
+        description_label.configure(
+            text='Требуется угадать число от 1 до 1000.\nПодсказок нет. Максимум баллов: 1000.\nЗа каждую неверную '
+                 'попытку снимается 10 баллов.')
+
     def description_off(event):
         description_label.configure(text='Наведите указатель мыши на уровень сложности,\nчтобы прочитать его описание')
+
     def my_stat(stat_login):
         cur = users.cursor()  # курсор в базе данных users cur = cursor
-        cur.execute('''SELECT login, best_score FROM users''')  # считываем в курсор лучший результат данного пользователя
+        cur.execute(
+            '''SELECT login, best_score FROM users''')  # считываем в курсор лучший результат данного пользователя
         log = cur.fetchone()  # считываем эту запись в кортеж
         while log[0] != stat_login:
             log = cur.fetchone()
         temp_str = 'Ваш лучший счёт: ' + log[1] + '\n\nВскоре в этом разделе появится больше информации!'
         temp_str1 = 'Статистика игрока ' + log[0]
         messagebox.showinfo(temp_str1, temp_str)
+
     window.withdraw()  # скрываем окно авторизации
     diff_window = Toplevel(window)  # создаём окно выбора сложности
     d_ws = diff_window.winfo_screenwidth()  # считываем текущую ширину экрана
     d_hs = diff_window.winfo_screenheight()  # считываем текущую высоту экрана
-    diff_window.geometry('%dx%d+%d+%d' % (356, 230, (d_ws / 2) - 175, (d_hs / 2 - 115)))  # расположение по центру экрана
+    diff_window.geometry(
+        '%dx%d+%d+%d' % (356, 230, (d_ws / 2) - 175, (d_hs / 2 - 115)))  # расположение по центру экрана
     diff_window.resizable(0, 0)  # запрещаем изменять размер окна
     diff_window.overrideredirect(1)  # отключаем рамку окна (нельзя переместить и закрыть)
     diff_caption = Label(diff_window, text="Главное меню", font=('Arial Black', 10))  # заголовок главного окна
     diff_caption.grid(row=0, column=0, columnspan=4)
     # надпись, приветствующая игрока
-    welcome_label = Label(diff_window, text="Привет, "+usr_login+"! Давай поиграем?")
+    welcome_label = Label(diff_window, text="Привет, " + usr_login + "! Давай поиграем?")
     welcome_label.grid(row=1, column=0, columnspan=4, pady=10)
     # кнопка для просмотра личной статистики
     my_stat_button = Button(diff_window, text="Моя статистика", padx=10, pady=5, command=lambda: my_stat(usr_login))
-    my_stat_button.grid(row=2, column=0, columnspan=2, padx=20, pady=5, sticky=N+W+S+E)
+    my_stat_button.grid(row=2, column=0, columnspan=2, padx=20, pady=5, sticky=N + W + S + E)
     # кнопка для просмотра таблицы лидеров
-    total_ranks_button = Button(diff_window, text="Таблица рекордов", padx=10, pady=5, command=lambda: top_scores(usr_login))
-    total_ranks_button.grid(row=2, column=2, columnspan=2, padx=20,pady=5, sticky=N+W+S+E)
+    total_ranks_button = Button(diff_window, text="Таблица рекордов", padx=10, pady=5,
+                                command=lambda: top_scores(usr_login))
+    total_ranks_button.grid(row=2, column=2, columnspan=2, padx=20, pady=5, sticky=N + W + S + E)
     # надпись, которая предлагает выбрать уровень сложности
     choose_diff_label = Label(diff_window, text="Выбери уровень сложности:")
     choose_diff_label.grid(row=3, column=0, columnspan=4)
     # кнопка легкого уровня сложности
-    easy_button = Button(diff_window, text="Лёгкий", padx=5, pady=5)
-    easy_button.grid(row=4, column=0, padx=5, pady=5, sticky=N+W+S+E)
+    easy_digit = random.randrange(10) + 1
+    easy_button = Button(diff_window, text="Лёгкий", padx=5, pady=5, command=lambda: easy_mode(usr_login, easy_digit))
+    easy_button.grid(row=4, column=0, padx=5, pady=5, sticky=N + W + S + E)
     # кнопка нормального уровня сложности
     normal_button = Button(diff_window, text="Нормальный", padx=5, pady=5)
-    normal_button.grid(row=4, column=1, padx=5, pady=5, sticky=N+W+S+E)
+    normal_button.grid(row=4, column=1, padx=5, pady=5, sticky=N + W + S + E)
     # кнопка тяжелого уровня сложности
     hard_button = Button(diff_window, text="Тяжёлый", padx=5, pady=5)
-    hard_button.grid(row=4, column=2, padx=5, pady=5, sticky=N+W+S+E)
+    hard_button.grid(row=4, column=2, padx=5, pady=5, sticky=N + W + S + E)
     # кнопка кошмарного уровня сложности
     nightmare_button = Button(diff_window, text="Кошмарный", padx=5, pady=5)
     nightmare_button.grid(row=4, column=3, padx=5, pady=5, sticky=N + W + S + E)
     # пояснение уровня сложности
-    description_label = Label(diff_window, text="Наведите указатель мыши на уровень сложности,\nчтобы прочитать его описание")
+    description_label = Label(diff_window,
+                              text="Наведите указатель мыши на уровень сложности,\nчтобы прочитать его описание")
     description_label.grid(row=5, column=0, columnspan=4)
     # описание событий с описаниями уровня сложности
     easy_button.bind('<Enter>', easy_description)
@@ -266,9 +329,10 @@ def top_scores(my_login):
     top_window.resizable(0, 0)  # запрещаем изменять размер окна
     top_window.title("Таблица рекордов")
     table_header_1 = Label(top_window, text="Игрок", font=('Arial Black', 10))  # заголовок таблицы "Игрок"
-    table_header_1.grid(row=0, column=0, padx=40, pady=5, sticky=N+W+S+E)
-    table_header_1 = Label(top_window, text="Лучший результат", font=('Arial Black', 10))  # заголовок таблицы "Лучший результат"
-    table_header_1.grid(row=0, column=1, padx=5, pady=5, sticky=N+W+S+E)
+    table_header_1.grid(row=0, column=0, padx=40, pady=5, sticky=N + W + S + E)
+    table_header_1 = Label(top_window, text="Лучший результат",
+                           font=('Arial Black', 10))  # заголовок таблицы "Лучший результат"
+    table_header_1.grid(row=0, column=1, padx=5, pady=5, sticky=N + W + S + E)
     # получение данных об игроках и их рекордах
     cur = users.cursor()  # курсор в базе данных users cur = cursor
     cur.execute('''SELECT login, best_score FROM users''')  # считываем в курсор лучший результат данного пользователя
@@ -287,9 +351,9 @@ def top_scores(my_login):
             player_score.grid(row=i + 1, column=1, padx=5, pady=5, sticky=N + W + S + E)
         else:
             player_name = Label(top_window, text=scores[i][0])
-            player_name.grid(row=1+i, column=0, padx=5, pady=5, sticky=N+W+S+E)
+            player_name.grid(row=1 + i, column=0, padx=5, pady=5, sticky=N + W + S + E)
             player_score = Label(top_window, text=scores[i][1])
-            player_score.grid(row=i+1, column=1, padx=5, pady=5, sticky=N+W+S+E)
+            player_score.grid(row=i + 1, column=1, padx=5, pady=5, sticky=N + W + S + E)
 
 
 # ====== инициализация базы данных ======
@@ -322,7 +386,7 @@ logo = ImageTk.PhotoImage(img)
 label4 = Label(window, image=logo, cursor='heart')
 label4.grid(row=1, column=2, rowspan=2)
 forgetLabel = Label(window, text='',
-                    cursor='hand2')  # Надпись "Забыли пароль?" неактивна и появляется только при неудачной попытке входа
+                    cursor='hand2')  # Надпись "Забыли пароль?" неактивна, появляется только при неудачной попытке входа
 forgetLabel.grid(row=3, column=0, columnspan=2, sticky=E)
 f = font.Font(forgetLabel, forgetLabel.cget('font'))  # делаем текст в виде ссылки, с подчеркиванием
 f.configure(underline=True)
@@ -334,6 +398,7 @@ f.configure(underline=True)
 registrationLabel.configure(font=f)
 
 #  ====== рабочая часть программы ======
+soten = 100  # глобальная переменная для количества баллов
 loginEntry.focus()  # устанавливаем фокус на поле ввода логина
 authSuccess = 0  # инициализируем счетчик попыток входа
 label4.bind('<Button-1>', enter)  # авторизация по клику на "короле"
