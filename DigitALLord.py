@@ -189,7 +189,7 @@ def access_denied():
 def enter(event):
     global authSuccess  # глобальная переменная для подсчета попыток неудачного входа
     cur = users.cursor()  # курсор в базе данных users cur = cursor
-    cur.execute('''SELECT login, password FROM users''')  # считываем в курсор всех пользователей и пароли
+    cur.execute('''SELECT login, password, best_score FROM users''')  # считываем в курсор всех пользователей и пароли
     login = loginEntry.get()  # считываем введённый пользователем логин
     password = passEntry.get()  # считываем введённый пользователем пароль
     log = cur.fetchone()  # считываем одного из пользователей в БД
@@ -199,7 +199,7 @@ def enter(event):
         messagebox.showwarning('Внимание!', 'Пользователь не найден!')  # выводим сообщение что логин не найден
     else:  # если такой логин найден, проверяется пароль
         if log[1] == password:
-            intro(log[0])
+            intro(log[0], log[2])
         else:
             messagebox.showwarning('Внимание!', 'Пароль неверный!')
             authSuccess += 1
@@ -208,18 +208,33 @@ def enter(event):
 
 
 # функция, отвечающая за экран приветствия пользователя (статистика, начало новой игры)
-def intro(usr_login):
+def intro(usr_login, b_score):
     def easy_description(event):
         description_label.configure(
             text='Требуется угадать число от 1 до 10.\nПодсказок нет. Максимум баллов: 100.\nЗа каждую неверную '
                  'попытку снимается 10 баллов.')
 
-    def easy_mode(u_login, secret_digit):
-        def check_digit(s_d, u_l):
+    def easy_mode(u_login, b_sc):
+        def check_digit(u_l, b_s):
             global soten
+            global easy_digit
+            global bestOf
+            bestOf = b_s
             digit = int(a_entry.get())
-            if digit == s_d:
-                messagebox.showinfo('Поздравляю!', 'Ты победил!')
+            if digit == easy_digit:
+                if soten > int(bestOf):
+                    messagebox.showinfo('Поздравляю!', 'Ты победил со счетом '+str(soten)+' баллов!\n\nЭто новый рекорд!')
+                    bestOf = soten
+                    cur = users.cursor()  # курсор в базе данных users cur = cursor
+                    sql = "UPDATE users SET best_score = ? WHERE login = ?"
+                    cur.execute(sql, (soten, u_l))
+                    users.commit()
+                else:
+                    messagebox.showinfo('Поздравляю!', 'Ты победил со счетом' + str(soten) + ' баллов!')
+                game_window.destroy()
+                diff_window.deiconify()
+                easy_digit = random.randrange(10) + 1  # генерируем новое случайное число
+                soten = 100  # очки за лёгкий уровень также обновляются
             else:
                 soten -= 10
                 q_caption.configure(text='Я загадал число от 1 до 10.\nНе угадал! Осталось '+str(soten)+' баллов!')
@@ -237,7 +252,7 @@ def intro(usr_login):
         q_caption.grid(row=1, column=0, columnspan=3, pady=5)
         a_entry = Entry(game_window, width=39, bd=3)
         a_entry.grid(row=2, column=0, columnspan=3)
-        answer_button = Button(game_window, text="Мне повезёт!", padx=5, pady=5, command=lambda: check_digit(secret_digit, u_login))
+        answer_button = Button(game_window, text="Мне повезёт!", padx=5, pady=5, command=lambda: check_digit(u_login, b_sc))
         answer_button.grid(row=3, column=0, columnspan=3, pady=5)
 
     def normal_description(event):
@@ -265,7 +280,7 @@ def intro(usr_login):
         log = cur.fetchone()  # считываем эту запись в кортеж
         while log[0] != stat_login:
             log = cur.fetchone()
-        temp_str = 'Ваш лучший счёт: ' + log[1] + '\n\nВскоре в этом разделе появится больше информации!'
+        temp_str = 'Ваш лучший счёт: ' + str(log[1]) + '\n\nВскоре в этом разделе появится больше информации!'
         temp_str1 = 'Статистика игрока ' + log[0]
         messagebox.showinfo(temp_str1, temp_str)
 
@@ -293,8 +308,8 @@ def intro(usr_login):
     choose_diff_label = Label(diff_window, text="Выбери уровень сложности:")
     choose_diff_label.grid(row=3, column=0, columnspan=4)
     # кнопка легкого уровня сложности
-    easy_digit = random.randrange(10) + 1
-    easy_button = Button(diff_window, text="Лёгкий", padx=5, pady=5, command=lambda: easy_mode(usr_login, easy_digit))
+
+    easy_button = Button(diff_window, text="Лёгкий", padx=5, pady=5, command=lambda: easy_mode(usr_login, b_score))
     easy_button.grid(row=4, column=0, padx=5, pady=5, sticky=N + W + S + E)
     # кнопка нормального уровня сложности
     normal_button = Button(diff_window, text="Нормальный", padx=5, pady=5)
@@ -398,6 +413,8 @@ f.configure(underline=True)
 registrationLabel.configure(font=f)
 
 #  ====== рабочая часть программы ======
+bestOf = 0  # глобальная переменная для лучших счетов
+easy_digit = random.randrange(10) + 1  # глобальная переменная для легкого уровня
 soten = 100  # глобальная переменная для количества баллов
 loginEntry.focus()  # устанавливаем фокус на поле ввода логина
 authSuccess = 0  # инициализируем счетчик попыток входа
