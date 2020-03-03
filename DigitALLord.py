@@ -209,11 +209,13 @@ def enter(event):
 
 # функция, отвечающая за экран приветствия пользователя (статистика, начало новой игры)
 def intro(usr_login, b_score):
+    # функция выводящая описание легкого режима игры
     def easy_description(event):
         description_label.configure(
             text='Требуется угадать число от 1 до 10.\nПодсказок нет. Максимум баллов: 100.\nЗа каждую неверную '
                  'попытку снимается 10 баллов.')
 
+    # функция запускающая игру на лёгком режиме сложности
     def easy_mode(u_login, b_sc):
         def check_digit(u_l, b_s):
             global soten
@@ -230,7 +232,7 @@ def intro(usr_login, b_score):
                     cur.execute(sql, (soten, u_l))
                     users.commit()
                 else:
-                    messagebox.showinfo('Поздравляю!', 'Ты победил со счетом' + str(soten) + ' баллов!')
+                    messagebox.showinfo('Поздравляю!', 'Ты победил со счетом ' + str(soten) + ' баллов!')
                 game_window.destroy()
                 diff_window.deiconify()
                 easy_digit = random.randrange(10) + 1  # генерируем новое случайное число
@@ -255,24 +257,164 @@ def intro(usr_login, b_score):
         answer_button = Button(game_window, text="Мне повезёт!", padx=5, pady=5, command=lambda: check_digit(u_login, b_sc))
         answer_button.grid(row=3, column=0, columnspan=3, pady=5)
 
+    # функция выводящая описание нормального режима игры
     def normal_description(event):
         description_label.configure(
             text='Требуется угадать число от 1 до 100.\nЕсть подсказки "больше"- "меньше". Максимум баллов: 500.\nЗа '
                  'каждую неверную попытку снимается 50 баллов.')
 
+    # функция запускающая игру на нормальном режиме сложности
+    def normal_mode(u_login, b_sc):
+        def check_digit(u_l, b_s):
+            global pyatsot
+            global normal_digit
+            global bestOf
+            bestOf = b_s
+            digit = int(a_entry.get())
+            if digit == normal_digit:
+                if pyatsot > int(bestOf):
+                    messagebox.showinfo('Поздравляю!', 'Ты победил со счетом '+str(pyatsot)+' баллов!\n\nЭто новый рекорд!')
+                    bestOf = pyatsot
+                    cur = users.cursor()  # курсор в базе данных users cur = cursor
+                    sql = "UPDATE users SET best_score = ? WHERE login = ?"
+                    cur.execute(sql, (pyatsot, u_l))
+                    users.commit()
+                else:
+                    messagebox.showinfo('Поздравляю!', 'Ты победил со счетом ' + str(pyatsot) + ' баллов!')
+                game_window.destroy()
+                diff_window.deiconify()
+                normal_digit = random.randrange(100) + 1  # генерируем новое случайное число
+                pyatsot = 500  # очки за лёгкий уровень также обновляются
+            else:
+                pyatsot -= 50
+                if digit > normal_digit:
+                    q_caption.configure(text='Я загадал число от 1 до 100.\nМеньше! Осталось '+str(pyatsot)+' баллов!')
+                else:
+                    q_caption.configure(
+                        text='Я загадал число от 1 до 100.\nБольше! Осталось ' + str(pyatsot) + ' баллов!')
+        diff_window.withdraw()
+        game_window = Toplevel(window)  # создаём окно выбора сложности
+        g_ws = game_window.winfo_screenwidth()  # считываем текущую ширину экрана
+        g_hs = game_window.winfo_screenheight()  # считываем текущую высоту экрана
+        game_window.geometry(
+            '%dx%d+%d+%d' % (240, 140, (g_ws / 2) - 120, (g_hs / 2 - 70)))  # расположение по центру экрана
+        game_window.resizable(0, 0)  # запрещаем изменять размер окна
+        game_window.overrideredirect(1)  # отключаем рамку окна (нельзя переместить и закрыть)
+        game_caption = Label(game_window, text="Числорд (normal)", font=('Arial Black', 10))  # заголовок главного окна
+        game_caption.grid(row=0, column=0, columnspan=3)
+        q_caption = Label(game_window, text="Я загадал число от 1 до 100.\nПопробуй угадай!")  # заголовок главного окна
+        q_caption.grid(row=1, column=0, columnspan=3, pady=5)
+        a_entry = Entry(game_window, width=39, bd=3)
+        a_entry.grid(row=2, column=0, columnspan=3)
+        answer_button = Button(game_window, text="Мне повезёт!", padx=5, pady=5, command=lambda: check_digit(u_login, b_sc))
+        answer_button.grid(row=3, column=0, columnspan=3, pady=5)
+
+    # функция выводящая описание тяжелого режима игры
     def hard_description(event):
         description_label.configure(
             text='Требуется угадать число от 1 до 1000.\nЕсть подсказки "больше"- "меньше". Максимум баллов: '
                  '1000.\nЗа каждую неверную попытку снимается 50 баллов.')
 
+    # функция запускающая игру на тяжелом режиме сложности
+    def hard_mode(u_login, b_sc):
+        def check_digit(u_l, b_s):
+            global tonna
+            global hard_digit
+            global bestOf
+            bestOf = b_s
+            digit = int(a_entry.get())
+            if digit == hard_digit:
+                if tonna > int(bestOf):
+                    messagebox.showinfo('Поздравляю!', 'Ты победил со счетом '+str(tonna)+' баллов!\n\nЭто новый рекорд!')
+                    bestOf = tonna
+                    cur = users.cursor()  # курсор в базе данных users cur = cursor
+                    sql = "UPDATE users SET best_score = ? WHERE login = ?"
+                    cur.execute(sql, (tonna, u_l))
+                    users.commit()
+                else:
+                    messagebox.showinfo('Поздравляю!', 'Ты победил со счетом ' + str(tonna) + ' баллов!')
+                game_window.destroy()
+                diff_window.deiconify()
+                hard_digit = random.randrange(1000) + 1  # генерируем новое случайное число
+                tonna = 1000  # очки за лёгкий уровень также обновляются
+            else:
+                tonna -= 50
+                if digit > hard_digit:
+                    q_caption.configure(text='Я загадал число от 1 до 100.\nМеньше! Осталось '+str(tonna)+' баллов!')
+                else:
+                    q_caption.configure(
+                        text='Я загадал число от 1 до 100.\nБольше! Осталось ' + str(tonna) + ' баллов!')
+        diff_window.withdraw()
+        game_window = Toplevel(window)  # создаём окно выбора сложности
+        g_ws = game_window.winfo_screenwidth()  # считываем текущую ширину экрана
+        g_hs = game_window.winfo_screenheight()  # считываем текущую высоту экрана
+        game_window.geometry(
+            '%dx%d+%d+%d' % (240, 140, (g_ws / 2) - 120, (g_hs / 2 - 70)))  # расположение по центру экрана
+        game_window.resizable(0, 0)  # запрещаем изменять размер окна
+        game_window.overrideredirect(1)  # отключаем рамку окна (нельзя переместить и закрыть)
+        game_caption = Label(game_window, text="Числорд (hard)", font=('Arial Black', 10))  # заголовок главного окна
+        game_caption.grid(row=0, column=0, columnspan=3)
+        q_caption = Label(game_window, text="Я загадал число от 1 до 1000.\nПопробуй угадай!")  # заголовок главного окна
+        q_caption.grid(row=1, column=0, columnspan=3, pady=5)
+        a_entry = Entry(game_window, width=39, bd=3)
+        a_entry.grid(row=2, column=0, columnspan=3)
+        answer_button = Button(game_window, text="Мне повезёт!", padx=5, pady=5, command=lambda: check_digit(u_login, b_sc))
+        answer_button.grid(row=3, column=0, columnspan=3, pady=5)
+
+    # функция выводящая описание кошмарного режима игры
     def nightmare_description(event):
         description_label.configure(
             text='Требуется угадать число от 1 до 1000.\nПодсказок нет. Максимум баллов: 1000.\nЗа каждую неверную '
                  'попытку снимается 10 баллов.')
 
+    # функция запускающая игру на кошмарном режиме сложности
+    def nightmare_mode(u_login, b_sc):
+        def check_digit(u_l, b_s):
+            global tonna
+            global nightmare_digit
+            global bestOf
+            bestOf = b_s
+            digit = int(a_entry.get())
+            if digit == nightmare_digit:
+                if tonna > int(bestOf):
+                    messagebox.showinfo('Поздравляю!', 'Ты победил со счетом '+str(tonna)+' баллов!\n\nЭто новый рекорд!')
+                    bestOf = tonna
+                    cur = users.cursor()  # курсор в базе данных users cur = cursor
+                    sql = "UPDATE users SET best_score = ? WHERE login = ?"
+                    cur.execute(sql, (tonna, u_l))
+                    users.commit()
+                else:
+                    messagebox.showinfo('Поздравляю!', 'Ты победил со счетом ' + str(tonna) + ' баллов!')
+                game_window.destroy()
+                diff_window.deiconify()
+                nightmare_digit = random.randrange(1000) + 1  # генерируем новое случайное число
+                tonna = 1000  # очки за кошмарный уровень также обновляются
+            else:
+                tonna -= 10
+                q_caption.configure(text='Я загадал число от 1 до 1000.\nНе угадал! Осталось '+str(tonna)+' баллов!')
+        diff_window.withdraw()
+        game_window = Toplevel(window)  # создаём окно выбора сложности
+        g_ws = game_window.winfo_screenwidth()  # считываем текущую ширину экрана
+        g_hs = game_window.winfo_screenheight()  # считываем текущую высоту экрана
+        game_window.geometry(
+            '%dx%d+%d+%d' % (240, 140, (g_ws / 2) - 120, (g_hs / 2 - 70)))  # расположение по центру экрана
+        game_window.resizable(0, 0)  # запрещаем изменять размер окна
+        game_window.overrideredirect(1)  # отключаем рамку окна (нельзя переместить и закрыть)
+        game_caption = Label(game_window, text="Числорд (nightmare)", font=('Arial Black', 10))  # заголовок главного окна
+        game_caption.grid(row=0, column=0, columnspan=3)
+        q_caption = Label(game_window, text="Я загадал число от 1 до 1000.\nПопробуй угадай!")  # заголовок главного окна
+        q_caption.grid(row=1, column=0, columnspan=3, pady=5)
+        a_entry = Entry(game_window, width=39, bd=3)
+        a_entry.grid(row=2, column=0, columnspan=3)
+        a_entry.focus()  # устанавливаем фокус на поле ввода числа
+        answer_button = Button(game_window, text="Мне повезёт!", padx=5, pady=5, command=lambda: check_digit(u_login, b_sc))
+        answer_button.grid(row=3, column=0, columnspan=3, pady=5)
+
+    # функция отключающая описания режимов игры
     def description_off(event):
         description_label.configure(text='Наведите указатель мыши на уровень сложности,\nчтобы прочитать его описание')
 
+    # функция для вывода личной статистики игрока
     def my_stat(stat_login):
         cur = users.cursor()  # курсор в базе данных users cur = cursor
         cur.execute(
@@ -312,13 +454,13 @@ def intro(usr_login, b_score):
     easy_button = Button(diff_window, text="Лёгкий", padx=5, pady=5, command=lambda: easy_mode(usr_login, b_score))
     easy_button.grid(row=4, column=0, padx=5, pady=5, sticky=N + W + S + E)
     # кнопка нормального уровня сложности
-    normal_button = Button(diff_window, text="Нормальный", padx=5, pady=5)
+    normal_button = Button(diff_window, text="Нормальный", padx=5, pady=5, command=lambda: normal_mode(usr_login, b_score))
     normal_button.grid(row=4, column=1, padx=5, pady=5, sticky=N + W + S + E)
     # кнопка тяжелого уровня сложности
-    hard_button = Button(diff_window, text="Тяжёлый", padx=5, pady=5)
+    hard_button = Button(diff_window, text="Тяжёлый", padx=5, pady=5, command=lambda: hard_mode(usr_login, b_score))
     hard_button.grid(row=4, column=2, padx=5, pady=5, sticky=N + W + S + E)
     # кнопка кошмарного уровня сложности
-    nightmare_button = Button(diff_window, text="Кошмарный", padx=5, pady=5)
+    nightmare_button = Button(diff_window, text="Кошмарный", padx=5, pady=5, command=lambda: nightmare_mode(usr_login, b_score))
     nightmare_button.grid(row=4, column=3, padx=5, pady=5, sticky=N + W + S + E)
     # пояснение уровня сложности
     description_label = Label(diff_window,
@@ -356,7 +498,7 @@ def top_scores(my_login):
     while log is not None:
         scores.append(log)
         log = cur.fetchone()
-    scores.sort(reverse=True, key=lambda x: x[1])  # сортировка игроков по убыванию лучшего результата
+    scores.sort(reverse=True, key=lambda x: int(x[1]))  # сортировка игроков по убыванию лучшего результата
     # вывод таблицы лидеров на экран
     for i in range(min(10, len(scores))):
         if my_login == scores[i][0]:  # выделяем результаты пользователя
@@ -415,7 +557,12 @@ registrationLabel.configure(font=f)
 #  ====== рабочая часть программы ======
 bestOf = 0  # глобальная переменная для лучших счетов
 easy_digit = random.randrange(10) + 1  # глобальная переменная для легкого уровня
-soten = 100  # глобальная переменная для количества баллов
+normal_digit = random.randrange(100) + 1  # глобальная переменная для нормального уровня
+hard_digit = random.randrange(1000) + 1  # глобальная переменная для тяжелого уровня
+nightmare_digit = random.randrange(1000) + 1  # глобальная переменная для кошмарного уровня
+soten = 100  # глобальная переменная для количества баллов на лёгком уровне сложности
+pyatsot = 500  # глобальная переменная для количества баллов на нормальном уровне сложности
+tonna = 1000  # глобальная переменная для количества баллов на тяжелом и кошмарном уровне сложности
 loginEntry.focus()  # устанавливаем фокус на поле ввода логина
 authSuccess = 0  # инициализируем счетчик попыток входа
 label4.bind('<Button-1>', enter)  # авторизация по клику на "короле"
@@ -424,5 +571,5 @@ passEntry.bind('<Return>', enter)  # авторизация по нажатию 
 registrationLabel.bind('<Button-1>', reg)  # регистрация по нажатию на соответствующую ссылку
 forgetLabel.bind('<Button-1>', forget)  # запуск восстановления пароля по нажатию на надпись "Забыли пароль?"
 
-# запускаем цикл дочернего окна
+# запускаем цикл главного окна
 window.mainloop()
